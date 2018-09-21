@@ -1,0 +1,26 @@
+CREATE TABLE TIPOCAT(
+    IdTipoCat INT(2),
+    NamTipoCat VARCHAR(30),
+    PRIMARY KEY (IdTipoCat));
+    
+CREATE TABLE CUENTAS(
+    IdCuenta INT(4),
+    NamCuenta VARCHAR(30),
+    PRIMARY KEY (IdCuenta));
+
+CREATE TABLE CATEGORIAS(
+    IdCategoria INT(3),
+    IdTipoCategoria INT(2),
+    NamCategoria VARCHAR(30),
+    PRIMARY KEY (IdCategoria),
+    FOREIGN KEY (IdTipoCategoria) REFERENCES TIPOCAT(IdTipoCat));
+
+CREATE TABLE MOVIMIENTOS(
+    IdMov INT(6),
+    FechaMov DATE,
+    ValorMov INT(10),
+    IdCuenta INT(4),
+    IdCategoria INT(3),
+    PRIMARY KEY (IdMov),
+    FOREIGN KEY (IdCuenta) REFERENCES CUENTAS(IdCuenta),
+    FOREIGN KEY (IdCategoria) REFERENCES CATEGORIAS(IdCategoria));
