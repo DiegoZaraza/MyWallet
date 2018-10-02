@@ -5,11 +5,21 @@
  */
 package logica;
 
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Locale;
+import javax.swing.ImageIcon;
 import persistencia.dao.MovimientosDao;
 import logica.vo.CategoriasVo;
 import logica.vo.CuentasVo;
 import logica.vo.MovimientosVo;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartFrame;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.general.DefaultPieDataset;
+import org.jfree.data.general.PieDataset;
 
 /**
  *
@@ -59,6 +69,22 @@ public class Logica {
         return saldo;
     }
     
+    public ChartFrame pintarGraficos(){       
+        //Se almacenan los datos que seran usados en el gráfico
+        DefaultPieDataset datos = new DefaultPieDataset();
+        datos.setValue("Misael", 8);
+        datos.setValue("Don Enrique",6);
+        datos.setValue("Lupe",4);
+        
+        //Se crea el gráfico y se asignan algunas caracteristicas
+        JFreeChart grafico_barras;       
+        grafico_barras = ChartFactory.createPieChart3D("Calificaciones Java", datos);
+        ChartFrame frame;
+        frame = new ChartFrame("Ejemplo",grafico_barras);
+        //frame.pack();
+        frame.setVisible(true);
+        return frame;
+    }
     public String idMovNuevo(){
        return mov.traerId();
     }
@@ -80,6 +106,10 @@ public class Logica {
             return Integer.parseInt(mov.sumarMovimientos("SELECT IdCategoria FROM CATEGORIAS WHERE NamCategoria ='" + text + "'"));
         else
             return Integer.parseInt(mov.sumarMovimientos("SELECT IdCuenta FROM CUENTAS WHERE  NamCuenta ='" + text + "'"));
+    }
+
+    private void initComponents() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 }

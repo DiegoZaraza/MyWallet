@@ -50,8 +50,8 @@ public class Modelo {
 
     public void iniciar() {
         getVPri().setVisible(true);
-        getVPri().getjButtonParametrizar().setVisible(false);
-        getVPri().getjButtonReportes().setVisible(false);
+        getVPri().getjButtonParametrizar().setVisible(true);
+        getVPri().getjButtonReportes().setVisible(true);
         this.cargarSaldos();
     }
 
@@ -86,7 +86,7 @@ public class Modelo {
         getVPri().getjLabelValorBilletera().setText(getLog().saldos("Billetera"));
         getVPri().getjLabelValorGastos().setText(getLog().saldos("Egresos"));
         getVPri().getjLabelValorIngresos().setText(getLog().saldos("Ingresos"));
-        
+        getVPri().getjPanelTorta().add(getLog().pintarGraficos());
         
     }
 
