@@ -5,14 +5,16 @@
  */
 package logica;
 
-import java.awt.image.BufferedImage;
+import java.awt.PopupMenu;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Locale;
-import javax.swing.ImageIcon;
+import javax.swing.WindowConstants;
+import javax.swing.table.DefaultTableModel;
 import persistencia.dao.MovimientosDao;
 import logica.vo.CategoriasVo;
 import logica.vo.CuentasVo;
 import logica.vo.MovimientosVo;
+import logica.vo.ProcesosVo;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartFrame;
 import org.jfree.chart.JFreeChart;
@@ -20,6 +22,7 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.PieDataset;
+import persistencia.dao.ProcesoDao;
 
 /**
  *
@@ -49,7 +52,7 @@ public class Logica {
     public String saldos(String cat){
         String query = "";
         String saldo = null;
-        
+        DecimalFormat formateador = new DecimalFormat("###,###,###");
         if (cat.equals("Ingresos")){
             saldo = mov.sumarMovimientos("SELECT SUM(ValorMov) AS Saldo FROM MOVIMIENTOS WHERE IdCategoria IN (SELECT IdCategoria FROM CATEGORIAS WHERE IdTipoCategoria = 11)");
         } else if (cat.equals("Egresos")){
@@ -72,19 +75,36 @@ public class Logica {
     public ChartFrame pintarGraficos(){       
         //Se almacenan los datos que seran usados en el gráfico
         DefaultPieDataset datos = new DefaultPieDataset();
-        datos.setValue("Misael", 8);
-        datos.setValue("Don Enrique",6);
-        datos.setValue("Lupe",4);
+        datos.setValue("Ingresos", Integer.parseInt(saldos("Ingresos")));
+        datos.setValue("Gastos",Integer.parseInt(saldos("Egresos")));
         
         //Se crea el gráfico y se asignan algunas caracteristicas
         JFreeChart grafico_barras;       
         grafico_barras = ChartFactory.createPieChart3D("Calificaciones Java", datos);
         ChartFrame frame;
         frame = new ChartFrame("Ejemplo",grafico_barras);
-        //frame.pack();
+        frame.pack();
         frame.setVisible(true);
         return frame;
     }
+    
+    public DefaultTableModel tabla(){
+        DefaultTableModel modelo = new DefaultTableModel();
+        
+       /* ResultSetMetaData rsMd = rs.getMetaData();
+        ResultSet rs = consulta.Consulta(Query);
+		int cantidadColumnas = rsMd.getColumnCount();
+		String nomColumna;
+		
+		for (int i = 1; i <= cantidadColumnas; i++)
+		{
+			nomColumna = rsMd.getColumnName(i);
+			modelo.addColumn(nomColumna);
+		}
+        */
+        return modelo;
+    }
+    
     public String idMovNuevo(){
        return mov.traerId();
     }
@@ -108,8 +128,74 @@ public class Logica {
             return Integer.parseInt(mov.sumarMovimientos("SELECT IdCuenta FROM CUENTAS WHERE  NamCuenta ='" + text + "'"));
     }
 
-    private void initComponents() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public ChartFrame graficarCuenta() {
+        //Se almacenan los datos que seran usados en el gráfico
+        DefaultCategoryDataset datos = new DefaultCategoryDataset();
+        ProcesoDao pr = new ProcesoDao();
+        ArrayList<ProcesosVo> data;
+        data = pr.datosGraficoCuentas();
+
+        for (int i = 0; i < data.size(); i++) {
+            datos.setValue(data.get(i).getValor(), data.get(i).getTipo(), data.get(i).getCuenta());
+        }
+
+        //Se crea el gráfico y se asignan algunas caracteristicas
+        JFreeChart grafico_barras;
+        grafico_barras = ChartFactory.createBarChart3D("Ingresos y Egresos por Cuenta", "Cuenta",
+                "Valor", datos, PlotOrientation.VERTICAL, true, true, false);
+        ChartFrame frame;
+        frame = new ChartFrame("Grafico", grafico_barras);
+        frame.pack();
+        frame.setVisible(true);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        return frame;
     }
     
+    public ChartFrame graficarCategoria() {
+        //Se almacenan los datos que seran usados en el gráfico
+        DefaultPieDataset datos = new DefaultPieDataset();
+        ProcesoDao pr = new ProcesoDao();
+        ArrayList<ProcesosVo> data;
+        data = pr.datosGraficoCategoria();
+
+        for (int i = 0; i < data.size(); i++) {
+            datos.setValue(data.get(i).getCuenta() + " - " + data.get(i).getValor(), data.get(i).getValor());
+        }
+
+        //Se crea el gráfico y se asignan algunas caracteristicas
+        JFreeChart grafico_barras;
+        grafico_barras = ChartFactory.createPieChart3D("Ingresos y Egresos por Categoria", datos);
+        ChartFrame frame;
+        frame = new ChartFrame("Grafico", grafico_barras);
+        frame.pack();
+        frame.setVisible(true);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        return frame;
+    }
+
+    public ChartFrame graficarIngreso() {
+        //Se almacenan los datos que seran usados en el gráfico
+        DefaultPieDataset datos = new DefaultPieDataset();
+        ProcesoDao pr = new ProcesoDao();
+        ArrayList<ProcesosVo> data;
+        data = pr.datosIngreso();
+
+        for (int i = 0; i < data.size(); i++) {
+            datos.setValue(data.get(i).getTipo()+ " - " + data.get(i).getValor(), data.get(i).getValor());
+        }
+
+        //Se crea el gráfico y se asignan algunas caracteristicas
+        JFreeChart grafico_barras;
+        grafico_barras = ChartFactory.createPieChart3D("Ingresos y Egresos por Categoria", datos);
+        ChartFrame frame;
+        frame = new ChartFrame("Grafico", grafico_barras);
+        frame.pack();
+        frame.setVisible(true);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        return frame;
+    }
+
+    public void insertarCategoria(CategoriasVo cat) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }
